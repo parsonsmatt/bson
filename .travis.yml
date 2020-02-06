@@ -1,4 +1,9 @@
 language: haskell
+ghc:
+  - "8.2"
+  - "8.4"
+  - "8.6"
+  - "8.8"
 
 jobs:
   include:
@@ -20,3 +25,4 @@ jobs:
         on:
           repo: mongodb-haskell/bson
           tags: true
+          ghc: "8.6"
