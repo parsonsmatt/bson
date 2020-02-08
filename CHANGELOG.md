@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to [Package Versioning Policy](https://wiki.haskell.org/Package_versioning_policy).
+## [0.4.0.0] - 2020-02-08
+
+### Fixed
+- Compatibility with GHC 8.8
+
 ## [0.3.2.8] - 2019-06-13
 
 ### Fixed
