@@ -25,4 +25,3 @@ jobs:
         on:
           repo: mongodb-haskell/bson
           tags: true
-          ghc: "8.6"
