@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances, OverloadedStrings, TypeSynonymInstances #-}
 
 module Data.Bson.Tests
     ( tests
@@ -6,6 +6,9 @@ module Data.Bson.Tests
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>), (<*>))
+#endif
+#if MIN_VERSION_base(4,9,0)
+import Control.Monad.Fail(MonadFail(..))
 #endif
 import Data.Int (Int32, Int64)
 import Data.Time.Calendar (Day(ModifiedJulianDay))
@@ -16,7 +19,7 @@ import qualified Data.ByteString as S
 import Data.Text (Text)
 import Test.Framework (Test, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.QuickCheck (Arbitrary(..), elements, oneof)
+import Test.QuickCheck (Arbitrary(..), elements, oneof, Property, (===))
 import qualified Data.Text as T
 
 import Data.Bson (Val(cast', val), ObjectId(..), MinMaxKey(..), MongoStamp(..),
@@ -106,6 +109,17 @@ testVal a = case cast' . val $ a of
     Nothing -> False
     Just a' -> a == a'
 
+#if MIN_VERSION_base(4,9,0)
+instance MonadFail (Either String) where
+   fail = Left
+
+testLookMonadFail :: Property
+testLookMonadFail =
+   (Bson.look "key" [] :: Either String Value)
+      -- This is as opposed to an exception thrown from Prelude.fail:
+      === Left "expected \"key\" in []"
+#endif
+
 tests :: Test
 tests = testGroup "Data.Bson.Tests"
     [ testProperty "Val Bool"        (testVal :: Bool -> Bool)
@@ -131,4 +145,8 @@ tests = testGroup "Data.Bson.Tests"
     , testProperty "Val Binary"      (testVal :: Binary -> Bool)
     -- , testProperty "Val Document"    (testVal :: Document -> Bool)
     , testProperty "Val Text"        (testVal :: Text -> Bool)
+
+#if MIN_VERSION_base(4,9,0)
+    , testProperty "'look' uses MonadFail.fail" testLookMonadFail
+#endif
     ]
