@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to [Package Versioning Policy](https://wiki.haskell.org/Package_versioning_policy).
+## [0.4.0.1] - 2020-03-22
+
+### Fixed
+- MonadFail usage
+
 ## [0.4.0.0] - 2020-02-08
 
 ### Fixed
