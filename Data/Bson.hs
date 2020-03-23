@@ -25,12 +25,12 @@ module Data.Bson (
   ObjectId(..), timestamp, genObjectId, showHexLen
 ) where
 
-import Prelude hiding (lookup)
+import Prelude hiding (fail, lookup)
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>))
 #endif
-#if !MIN_VERSION_base(4,13,0)
-import Control.Monad.Fail (MonadFail)
+#if MIN_VERSION_base(4, 9, 0)
+import Control.Monad.Fail (MonadFail(fail))
 #endif
 import Control.Monad (foldM)
 import Data.Bits (shift, (.|.))
