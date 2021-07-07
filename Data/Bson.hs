@@ -17,7 +17,7 @@ module Data.Bson (
   Field(..), (=:), (=?),
   Label,
   -- * Value
-  Value(..), Val(..), fval, cast, typed, typeOfVal,
+  Value(..), Val(..), fval, typed, typeOfVal,
   -- * Special Bson value types
   Binary(..), Function(..), UUID(..), MD5(..), UserDefined(..),
   Regex(..), Javascript(..), Symbol(..), MongoStamp(..), MinMaxKey(..),
@@ -202,15 +202,6 @@ fval f v = case v of
 
 -- * Value conversion
 
-cast :: (Val a, MonadFail m) => Value -> m a
--- ^ Convert Value to expected type, or fail (Nothing) if not of that type
-cast v = maybe notType return castingResult
-  where
-    castingResult = cast' v
-    unMaybe :: Maybe a -> a
-    unMaybe = undefined
-    notType = fail $ "expected " ++ show (typeOf $ unMaybe castingResult) ++ ": " ++ show v
-
 typed :: (Val a) => Value -> a
 -- ^ Convert Value to expected type. Error if not that type.
 typed = fromJust . cast
@@ -229,12 +220,23 @@ class (Typeable a, Show a, Eq a) => Val a where
   valMaybe :: Maybe a -> Value
   valMaybe = maybe Null val
   cast' :: Value -> Maybe a
+  cast' = cast
   cast'List :: Value -> Maybe [a]
   cast'List (Array x) = mapM cast x
   cast'List _         = Nothing
   cast'Maybe :: Value -> Maybe (Maybe a)
   cast'Maybe Null = Just Nothing
   cast'Maybe v    = fmap Just (cast' v)
+
+  cast :: MonadFail m => Value -> m a
+  -- ^ Convert Value to expected type, or fail (e.g. Nothing) if not of that type
+  cast v = maybe notType return castingResult
+    where
+      castingResult = cast' v
+      unMaybe :: Maybe a -> a
+      unMaybe = undefined
+      notType = fail $ "expected " ++ show (typeOf $ unMaybe castingResult) ++ ": " ++ show v
+  {-# MINIMAL val, (cast | cast') #-}
 
 instance Val Double where
   val             = Float
